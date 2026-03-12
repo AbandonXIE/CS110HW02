@@ -177,8 +177,58 @@ int main(void) {
   if (inexact && sign == '0') {
     action = "Up";
   }
-  std::cout << "Norm: " << e_norm << " Fraction=" << fraction 
+  std::cout << "Norm: E_norm=" << e_norm << " Fraction=" << fraction 
     << " G=" << g << " R=" << r << " S=" << s << " Action=" << action << std::endl;
+
+  int e_val = e_norm + 16;
+  if (multiplyExp >= -14) {
+    int k = 0;
+    while (binMultiplyValue[k] == '0') k++;
+    e_val -= k;
+  } else {
+    e_val = 0;
+  }
+  std::string bin_e_val = "";
+  for(int i = 0; i < 5; i++) {
+    if (e_val >= (1 << (4 - i))) {
+      bin_e_val += "1";
+      e_val -= (1 << (4 - i));
+    } else {
+      bin_e_val += "0";
+    }
+  }
+
+  std::string new_fraction = "";
+  if (action == "Up") {
+    int value = 0;
+    for(int i = 0; i < 10; i++) {
+      if(fraction[i] == '1') {
+        value += (1 << (9 - i));
+      }
+    }
+    value++;
+    for(int i = 0; i < 10; i++) {
+      if (value >= (1 << (9 - i))) {
+        new_fraction += "1";
+        value -= (1 << (9 - i));
+      } else {
+        new_fraction += "0";
+      }
+    }
+  } else {
+    new_fraction = fraction;
+  }
+
+  std::string result = (s1 == s2) ? "0" : "1";
+  std::string hex_result = "";
+  result += bin_e_val;
+  result += new_fraction;
+    for (size_t i = 0; i < result.length(); i += 4) {
+    std::string group = result.substr(i, 4);
+    hex_result += binToHex[group];
+  }  
   
+  std::cout << "Result: " << hex_result << std::endl;
+
   return 0;
 }
