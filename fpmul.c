@@ -140,6 +140,45 @@ int main(void) {
     }
   }
   std::cout << "Raw: " << binMultiplyValue << " E_raw=" << multiplyExp << std::endl;
+
+  binMultiplyValue += "000000000000";
+  int e_norm = multiplyExp;
+  std::string fraction;
+  if (e_norm < -14) {
+    e_norm = -14;
+    int expcount = 1;
+    fraction = "";
+    while (e_norm - expcount > multiplyExp && expcount < 10) {
+      expcount++;
+      fraction += "0";
+    }
+    int cnt = 0;
+    while (binMultiplyValue[cnt] == '0') cnt++;
+    fraction += binMultiplyValue.substr(cnt, 11 - expcount);
+  }
+  int cnt = 0;
+  while (binMultiplyValue[cnt] == '0') cnt++;
+  if (multiplyExp >= -14) {
+    fraction = binMultiplyValue.substr(cnt + 1, 10);
+  } 
+  char g = binMultiplyValue[cnt + 11];
+  char r = binMultiplyValue[cnt + 12];
+  char s = '0';
+  cnt += 12;
+  for (; cnt < 22; cnt++) {
+    if (binMultiplyValue[cnt] == '1') {
+      s = '1';
+      break;
+    }
+  }
+  bool inexact = (g == '1' || r == '1' || s == '1') ? true : false;
+  char sign = (s1 == s2) ? '0' : '1';
+  std::string action = "Truncate";
+  if (inexact && sign == '0') {
+    action = "Up";
+  }
+  std::cout << "Norm: " << e_norm << " Fraction=" << fraction 
+    << " G=" << g << " R=" << r << " S=" << s << " Action=" << action << std::endl;
   
   return 0;
 }
