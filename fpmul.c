@@ -13,13 +13,14 @@ std::map<char, std::string> hexToBin = {
 };
 
 std::map<std::string, char> binToHex;
-for (const auto& pair : hexToBin) {
-  binToHex[pair.second] = pair.first;
-}
 
 int main(void) { 
-  char[4] ch1;
-  char[4] ch2;
+  for (const auto& pair : hexToBin) {
+    binToHex[pair.second] = pair.first;
+  }
+  
+  char ch1[4];
+  char ch2[4];
   scanf("%c%c%c%c ", &ch1[0], &ch1[1], &ch1[2], &ch1[3]);
   scanf("%c%c%c%c\n", &ch2[0], &ch2[1], &ch2[2], &ch2[3]);
 
@@ -39,48 +40,46 @@ int main(void) {
   char s1 = bin1[0];
   std::string e1_bin = bin1.substr(1, 5);
   std::string m1_bin = bin1.substr(6, 10);
-  std::bitset<5> e1_bitset(e1_bin);
-  std::bitset<12> m1_bitset(m1_bin << 2);
+  m1_bin = m1_bin + "00";
   char s2 = bin2[0];
   std::string e2_bin = bin2.substr(1, 5);
   std::string m2_bin = bin2.substr(6, 10);
-  std::bitset<5> e2_bitset(e2_bin);
-  std::bitset<12> m2_bitset(m2_bin << 2);
+  m2_bin = m2_bin + "00";
 
   int e1 = -15;
-  for(i = 0; i < 5; i++) {
-    if(e1_bitset[i] == '1') {
-      e1 += pow(2, 4 - i);
+  for(int i = 0; i < 5; i++) {
+    if(e1_bin[i] == '1') {
+      e1 += 1 << (4 - i);
     }
   }
   std::string m1 = "";
-  for (size_t i = 0; i < m1_bitset.length(); i += 4) {
-    std::string group = m1_bitset.substr(i, 4);
+  for (size_t i = 0; i < m1_bin.length(); i += 4) {
+    std::string group = m1_bin.substr(i, 4);
     m1 += binToHex[group];
   }
   
   int e2 = -15;
-  for(i = 0; i < 5; i++) {
-    if(e2_bitset[i] == '1') {
-      e2 += pow(2, 4 - i);
+  for(int i = 0; i < 5; i++) {
+    if(e2_bin[i] == '1') {
+      e2 += 1 << (4 - i);
     }
   }
   std::string m2 = "";
-  for (size_t i = 0; i < m2_bitset.length(); i += 4) {
-    std::string group = m2_bitset.substr(i, 4);
+  for (size_t i = 0; i < m2_bin.length(); i += 4) {
+    std::string group = m2_bin.substr(i, 4);
     m2 += binToHex[group];
   }  
   
   std::string type1 = "normal";
-  if (e1_bitset.none()) {
-    if (m1_bitset.none()) {
+  if (e1_bin == "00000") {
+    if (m1_bin == "000000000000") {
       type1 = "zero";
     } else {
       type1 = "subnormal";
     }
     std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=0." << m1 << " " << type1 << std::endl;
-  } else if (e1_bitset.all()) {
-    if (m1_bitset.none()) {
+  } else if (e1_bin == "11111") {
+    if (m1_bin == "000000000000") {
       type1 = "inf";
     } else {
       type1 = "nan";
@@ -91,15 +90,15 @@ int main(void) {
   }
 
   std::string type2 = "normal";
-  if (e2_bitset.none()) {
-    if (m2_bitset.none()) {
+  if (e2_bin == "00000") {
+    if (m2_bin == "000000000000") {
       type2 = "zero";
     } else {
       type2 = "subnormal";
     }
     std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=0." << m2 << " " << type2 << std::endl;
-  } else if (e2_bitset.all()) {
-    if (m2_bitset.none()) {
+  } else if (e2_bin == "11111") {
+    if (m2_bin == "000000000000") {
       type2 = "inf";
     } else {
       type2 = "nan";
@@ -108,6 +107,39 @@ int main(void) {
   } else {
     std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=1." << m2 << " " << type2 << std::endl;
   }
+
+  int value1 = 0;
+  for(int i = 0; i < 10; i++) {
+    if(m1_bin[i] == '1') {
+      value1 += 1 << (10 - i);
+    }
+  }
+  if (e1_bin != "00000") {
+    value1 += 1 << 11;
+  }
+  
+  int value2 = 0;
+  for(int i = 0; i < 10; i++) {
+    if(m2_bin[i] == '1') {
+      value2 += 1 << (10 - i);
+    }
+  }
+  if (e2_bin != "00000") {
+    value2 += 1 << 11;
+  }
+
+  int multiplyValue = value1 * value2;
+  int multiplyExp = e1 + e2
+  std::string binMultiplyValue = "";
+  for(int i = 0; i < 22; i++) {
+    if (multiplyValue >= (1 << (21 - i))) {
+      binMultiplyValue += "1";
+      multiplyValue -= (1 << (21 - i))
+    } else {
+      binMultiplyValue += "0";
+    }
+  }
+  std::cout << "Raw: " << binMultiplyValue << " E_raw=" << multiplyExp << std::endl;
   
   return 0;
 }
