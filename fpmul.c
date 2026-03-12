@@ -111,21 +111,21 @@ int main(void) {
   int value1 = 0;
   for(int i = 0; i < 10; i++) {
     if(m1_bin[i] == '1') {
-      value1 += 1 << (10 - i);
+      value1 += (1 << (9 - i));
     }
   }
   if (e1_bin != "00000") {
-    value1 += 1 << 11;
+    value1 += (1 << 10);
   }
   
   int value2 = 0;
   for(int i = 0; i < 10; i++) {
     if(m2_bin[i] == '1') {
-      value2 += 1 << (10 - i);
+      value2 += (1 << (9 - i));
     }
   }
   if (e2_bin != "00000") {
-    value2 += 1 << 11;
+    value2 += (1 << 10);
   }
 
   int multiplyValue = value1 * value2;
@@ -134,7 +134,7 @@ int main(void) {
   for(int i = 0; i < 22; i++) {
     if (multiplyValue >= (1 << (21 - i))) {
       binMultiplyValue += "1";
-      multiplyValue -= (1 << (21 - i))
+      multiplyValue -= (1 << (21 - i));
     } else {
       binMultiplyValue += "0";
     }
