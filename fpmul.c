@@ -129,7 +129,7 @@ int main(void) {
   }
 
   int multiplyValue = value1 * value2;
-  int multiplyExp = e1 + e2
+  int multiplyExp = e1 + e2;
   std::string binMultiplyValue = "";
   for(int i = 0; i < 22; i++) {
     if (multiplyValue >= (1 << (21 - i))) {
