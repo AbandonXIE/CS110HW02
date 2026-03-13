@@ -72,6 +72,7 @@ int main(void) {
   
   std::string type1 = "normal";
   if (e1_bin == "00000") {
+    e1 = -14;
     if (m1_bin == "000000000000") {
       type1 = "zero";
     } else {
@@ -79,18 +80,21 @@ int main(void) {
     }
     std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=0." << m1 << " " << type1 << std::endl;
   } else if (e1_bin == "11111") {
+    e1 = 0;
     if (m1_bin == "000000000000") {
       type1 = "inf";
+      std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=1." << m1 << " " << type1 << std::endl;
     } else {
       type1 = "nan";
+      std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=0." << m1 << " " << type1 << std::endl;
     }
-    std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=1." << m1 << " " << type1 << std::endl;
   } else {
     std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=1." << m1 << " " << type1 << std::endl;
   }
 
   std::string type2 = "normal";
   if (e2_bin == "00000") {
+    e2 = -14;
     if (m2_bin == "000000000000") {
       type2 = "zero";
     } else {
@@ -98,14 +102,43 @@ int main(void) {
     }
     std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=0." << m2 << " " << type2 << std::endl;
   } else if (e2_bin == "11111") {
+    e2 = 0;
     if (m2_bin == "000000000000") {
       type2 = "inf";
+      std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=1." << m2 << " " << type2 << std::endl;
     } else {
       type2 = "nan";
+      std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=0." << m2 << " " << type2 << std::endl;
     }
-    std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=1." << m2 << " " << type2 << std::endl;
   } else {
     std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=1." << m2 << " " << type2 << std::endl;
+  }
+
+  if (type1 == "inf") {
+    std::cout << "Raw: N/A" << std::endl;
+    std::cout << "Norm: N/A" << std::endl;
+    if (type2 == "normal") {
+      std::cout << "Result: " << ch1[0] << ch1[1] << ch1[2] << ch1[3] << std::endl;
+    } else {
+      std::cout << "Result: N/A" << std::endl;
+    }
+    return 0;
+  }
+  if (type2 == "inf") {
+    std::cout << "Raw: N/A" << std::endl;
+    std::cout << "Norm: N/A" << std::endl;
+    if (type1 == "normal") {
+      std::cout << "Result: " << ch2[0] << ch2[1] << ch2[2] << ch2[3] << std::endl;
+    } else {
+      std::cout << "Result: N/A" << std::endl;
+    }
+    return 0;
+  }
+  if (type1 == "nan" || type2 == "nan") {
+    std::cout << "Raw: N/A" << std::endl;
+    std::cout << "Norm: N/A" << std::endl;
+    std::cout << "Result: N/A" << std::endl;
+    return 0;
   }
 
   int value1 = 0;
@@ -141,93 +174,87 @@ int main(void) {
   }
   std::cout << "Raw: " << binMultiplyValue << " E_raw=" << multiplyExp << std::endl;
 
-  binMultiplyValue += "000000000000";
-  int e_norm = multiplyExp;
-  std::string fraction;
-  if (e_norm < -14) {
+  int e_exact = multiplyExp;
+  int e_norm = e_exact;
+
+  if (e_exact <= -14) {
     e_norm = -14;
-    int expcount = 1;
-    fraction = "";
-    while (e_norm - expcount > multiplyExp && expcount < 10) {
-      expcount++;
-      fraction += "0";
-    }
-    int cnt = 0;
-    while (binMultiplyValue[cnt] == '0') cnt++;
-    fraction += binMultiplyValue.substr(cnt, 11 - expcount);
   }
-  int cnt = 0;
-  while (binMultiplyValue[cnt] == '0') cnt++;
-  if (multiplyExp >= -14) {
-    fraction = binMultiplyValue.substr(cnt + 1, 10);
-  } 
-  char g = binMultiplyValue[cnt + 11];
-  char r = binMultiplyValue[cnt + 12];
+
+  std::string fraction;
+  char g;
+  char r;
   char s = '0';
-  cnt += 12;
-  for (; cnt < 22; cnt++) {
-    if (binMultiplyValue[cnt] == '1') {
+  int read;
+
+  if (binMultiplyValue[0] == '1') {
+    e_exact++;
+    fraction = binMultiplyValue.substr(1, 10);
+    g = binMultiplyValue[11];
+    r = binMultiplyValue[12];
+    read = 13;
+  } else {
+    fraction = binMultiplyValue.substr(2, 10);
+    g = binMultiplyValue[12];
+    r = binMultiplyValue[13];
+    read = 14;
+  }
+  for (; read < 22; read++) {
+    if (binMultiplyValue[read] == '1') {
       s = '1';
       break;
     }
   }
-  bool inexact = (g == '1' || r == '1' || s == '1') ? true : false;
-  char sign = (s1 == s2) ? '0' : '1';
-  std::string action = "Truncate";
-  if (inexact && sign == '0') {
-    action = "Up";
-  }
-  std::cout << "Norm: E_norm=" << e_norm << " Fraction=" << fraction 
+
+  bool inexact = (g == '1' || r == '1' || s == '1');
+  char sign = (s1 == s2)? '0' : '1';
+  std::string action = (inexact && sign == '0')? "Up" : "Truncate";
+  std::cout << "Norm: E_norm=" << e_norm << " Fraction=" << fraction
     << " G=" << g << " R=" << r << " S=" << s << " Action=" << action << std::endl;
 
-  int e_val = e_norm + 16;
-  if (multiplyExp >= -14) {
-    int k = 0;
-    while (binMultiplyValue[k] == '0') k++;
-    e_val -= k;
-  } else {
-    e_val = 0;
-  }
-  std::string bin_e_val = "";
-  for(int i = 0; i < 5; i++) {
-    if (e_val >= (1 << (4 - i))) {
-      bin_e_val += "1";
-      e_val -= (1 << (4 - i));
-    } else {
-      bin_e_val += "0";
-    }
-  }
-
-  std::string new_fraction = "";
   if (action == "Up") {
-    int value = 0;
-    for(int i = 0; i < 10; i++) {
-      if(fraction[i] == '1') {
-        value += (1 << (9 - i));
+    if (fraction == "1111111111") {
+      e_exact++;
+      fraction = "0000000000";
+    } else {
+      int value = 0;
+      for(int i = 0; i < 10; i++) {
+        if(fraction[i] == '1') {
+          value += (1 << (9 - i));
+        }
+      }
+      value++;
+      fraction = "";
+      for(int i = 0; i < 10; i++) {
+        if(value >= (1 << (9 - i))) {
+          fraction += "1";
+          value -= (1 << (9 - i));
+        } else {
+          fraction += "0";
+        }
       }
     }
-    value++;
-    for(int i = 0; i < 10; i++) {
-      if (value >= (1 << (9 - i))) {
-        new_fraction += "1";
-        value -= (1 << (9 - i));
-      } else {
-        new_fraction += "0";
-      }
-    }
-  } else {
-    new_fraction = fraction;
   }
 
-  std::string result = (s1 == s2) ? "0" : "1";
+  std::string bin_result = (sign == '1') ? "1" : "0";
+  std::string e_bin = "";
+  for(int i = 0; i < 5; i++) {
+    int v = e_exact + 14;
+    if(v >= (1 << (4 - i))) {
+      e_bin += "1";
+      v -= (1 << (4 - i));
+    } else {
+      e_bin += "0";
+    }
+  }
+  bin_result += e_bin;
+  bin_result += fraction;
+
   std::string hex_result = "";
-  result += bin_e_val;
-  result += new_fraction;
-    for (size_t i = 0; i < result.length(); i += 4) {
-    std::string group = result.substr(i, 4);
+  for (size_t i = 0; i < bin_result.length(); i += 4) {
+    std::string group = bin_result.substr(i, 4);
     hex_result += binToHex[group];
-  }  
-  
+  }
   std::cout << "Result: " << hex_result << std::endl;
 
   return 0;
