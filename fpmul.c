@@ -1,18 +1,48 @@
-#include<stdio.h>
-#include<iostream>
-#include<string>
-#include<map>
-#include<math.h>
-#include<bitset>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
 
-std::map<char, std::string> hexToBin = {
-  {'0', "0000"}, {'1', "0001"}, {'2', "0010"}, {'3', "0011"},
-  {'4', "0100"}, {'5', "0101"}, {'6', "0110"}, {'7', "0111"},
-  {'8', "1000"}, {'9', "1001"}, {'a', "1010"}, {'b', "1011"},
-  {'c', "1100"}, {'d', "1101"}, {'e', "1110"}, {'f', "1111"}
-};
+const char* hexToBin(char c) {
+  switch (c) {
+    case '0': return "0000";
+    case '1': return "0001";
+    case '2': return "0010";
+    case '3': return "0011";
+    case '4': return "0100";
+    case '5': return "0101";
+    case '6': return "0110";
+    case '7': return "0111";
+    case '8': return "1000";
+    case '9': return "1001";
+    case 'a': return "1010";
+    case 'b': return "1011";
+    case 'c': return "1100";
+    case 'd': return "1101";
+    case 'e': return "1010";
+    case 'f': return "1111";
+  }
+}
 
-std::map<std::string, char> binToHex;
+const char* binToHex(string s) {
+  switch (s) {
+    case "0000": return '0';
+    case "0001": return '1';
+    case "0010": return '2';
+    case "0011": return '3';
+    case "0100": return '4';
+    case "0101": return '5';
+    case "0110": return '6';
+    case "0111": return '7';
+    case "1000": return '8';
+    case "1001": return '9';
+    case "1010": return 'a';
+    case "1011": return 'b';
+    case "1100": return 'c';
+    case "1101": return 'd';
+    case "1010": return 'e';
+    case "1111": return 'f';
+  }
+}
 
 int main(void) { 
   for (const auto& pair : hexToBin) {
@@ -24,26 +54,22 @@ int main(void) {
   scanf("%c%c%c%c ", &ch1[0], &ch1[1], &ch1[2], &ch1[3]);
   scanf("%c%c%c%c\n", &ch2[0], &ch2[1], &ch2[2], &ch2[3]);
 
-  std::string bin1;
-  std::string bin2;
+  string bin1;
+  string bin2;
   for (char c : ch1) {
-    if (hexToBin.find(c) != hexToBin.end()) {
-      bin1 += hexToBin[c];
-    }
+    bin1 += hexToBin(c);
   }
   for (char c : ch2) {
-    if (hexToBin.find(c) != hexToBin.end()) {
-      bin2 += hexToBin[c];
-    }
+    bin2 += hexToBin(c);
   }
 
   char s1 = bin1[0];
-  std::string e1_bin = bin1.substr(1, 5);
-  std::string m1_bin = bin1.substr(6, 10);
+  string e1_bin = bin1.substr(1, 5);
+  string m1_bin = bin1.substr(6, 10);
   m1_bin = m1_bin + "00";
   char s2 = bin2[0];
-  std::string e2_bin = bin2.substr(1, 5);
-  std::string m2_bin = bin2.substr(6, 10);
+  string e2_bin = bin2.substr(1, 5);
+  string m2_bin = bin2.substr(6, 10);
   m2_bin = m2_bin + "00";
 
   int e1 = -15;
@@ -52,10 +78,10 @@ int main(void) {
       e1 += 1 << (4 - i);
     }
   }
-  std::string m1 = "";
+  string m1 = "";
   for (size_t i = 0; i < m1_bin.length(); i += 4) {
-    std::string group = m1_bin.substr(i, 4);
-    m1 += binToHex[group];
+    string group = m1_bin.substr(i, 4);
+    m1 += binToHex(group);
   }
   
   int e2 = -15;
@@ -64,13 +90,13 @@ int main(void) {
       e2 += 1 << (4 - i);
     }
   }
-  std::string m2 = "";
+  string m2 = "";
   for (size_t i = 0; i < m2_bin.length(); i += 4) {
-    std::string group = m2_bin.substr(i, 4);
-    m2 += binToHex[group];
+    string group = m2_bin.substr(i, 4);
+    m2 += binToHex(group);
   }  
   
-  std::string type1 = "normal";
+  string type1 = "normal";
   if (e1_bin == "00000") {
     e1 = -14;
     if (m1_bin == "000000000000") {
@@ -78,21 +104,21 @@ int main(void) {
     } else {
       type1 = "subnormal";
     }
-    std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=0." << m1 << " " << type1 << std::endl;
+    printf("Op1: S=%c E=%d M=0.%s %s\n", s1, e1, m1, type1);
   } else if (e1_bin == "11111") {
     e1 = 0;
     if (m1_bin == "000000000000") {
       type1 = "inf";
-      std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=1." << m1 << " " << type1 << std::endl;
+      printf("Op1: S=%c E=%d M=1.%s %s\n", s1, e1, m1, type1);
     } else {
       type1 = "nan";
-      std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=0." << m1 << " " << type1 << std::endl;
+      printf("Op1: S=%c E=%d M=0.%s %s\n", s1, e1, m1, type1);
     }
   } else {
-    std::cout << "Op1: S=" << s1 << " E=" << e1 << " M=1." << m1 << " " << type1 << std::endl;
+    printf("Op1: S=%c E=%d M=1.%s %s\n", s1, e1, m1, type1);
   }
 
-  std::string type2 = "normal";
+  string type2 = "normal";
   if (e2_bin == "00000") {
     e2 = -14;
     if (m2_bin == "000000000000") {
@@ -100,44 +126,44 @@ int main(void) {
     } else {
       type2 = "subnormal";
     }
-    std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=0." << m2 << " " << type2 << std::endl;
+    printf("Op1: S=%c E=%d M=0.%s %s\n", s1, e1, m1, type1);
   } else if (e2_bin == "11111") {
     e2 = 0;
     if (m2_bin == "000000000000") {
       type2 = "inf";
-      std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=1." << m2 << " " << type2 << std::endl;
+      printf("Op1: S=%c E=%d M=1.%s %s\n", s1, e1, m1, type1);
     } else {
       type2 = "nan";
-      std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=0." << m2 << " " << type2 << std::endl;
+      printf("Op1: S=%c E=%d M=0.%s %s\n", s1, e1, m1, type1);
     }
   } else {
-    std::cout << "Op2: S=" << s2 << " E=" << e2 << " M=1." << m2 << " " << type2 << std::endl;
+    printf("Op1: S=%c E=%d M=1.%s %s\n", s1, e1, m1, type1);
   }
 
   if (type1 == "inf") {
-    std::cout << "Raw: N/A" << std::endl;
-    std::cout << "Norm: N/A" << std::endl;
+    printf("Raw: N/A");
+    printf("Norm: N/A");
     if (type2 == "normal") {
-      std::cout << "Result: " << ch1[0] << ch1[1] << ch1[2] << ch1[3] << std::endl;
+      printf("Result: %c%c%c%c\n", ch1[0], ch1[1], ch1[2], ch1[3]);
     } else {
-      std::cout << "Result: N/A" << std::endl;
+      printf("Result: N/A");
     }
     return 0;
   }
   if (type2 == "inf") {
-    std::cout << "Raw: N/A" << std::endl;
-    std::cout << "Norm: N/A" << std::endl;
+    printf("Raw: N/A");
+    printf("Norm: N/A");
     if (type1 == "normal") {
-      std::cout << "Result: " << ch2[0] << ch2[1] << ch2[2] << ch2[3] << std::endl;
+      printf("Result: %c%c%c%c\n", ch2[0], ch2[1], ch2[2], ch2[3]);
     } else {
-      std::cout << "Result: N/A" << std::endl;
+      printf("Result: N/A");
     }
     return 0;
   }
   if (type1 == "nan" || type2 == "nan") {
-    std::cout << "Raw: N/A" << std::endl;
-    std::cout << "Norm: N/A" << std::endl;
-    std::cout << "Result: N/A" << std::endl;
+    printf("Raw: N/A");
+    printf("Norm: N/A");
+    printf("Result: N/A");
     return 0;
   }
 
@@ -163,7 +189,7 @@ int main(void) {
 
   int multiplyValue = value1 * value2;
   int multiplyExp = e1 + e2;
-  std::string binMultiplyValue = "";
+  string binMultiplyValue = "";
   for(int i = 0; i < 22; i++) {
     if (multiplyValue >= (1 << (21 - i))) {
       binMultiplyValue += "1";
@@ -172,7 +198,7 @@ int main(void) {
       binMultiplyValue += "0";
     }
   }
-  std::cout << "Raw: " << binMultiplyValue << " E_raw=" << multiplyExp << std::endl;
+  printf("Raw: %s E_raw=%d\n", binMultiplyValue, multiplyExp);
 
   int e_exact = multiplyExp;
   int e_norm = e_exact;
@@ -181,7 +207,7 @@ int main(void) {
     e_norm = -14;
   }
 
-  std::string fraction;
+  string fraction;
   char g;
   char r;
   char s = '0';
@@ -208,9 +234,8 @@ int main(void) {
 
   bool inexact = (g == '1' || r == '1' || s == '1');
   char sign = (s1 == s2)? '0' : '1';
-  std::string action = (inexact && sign == '0')? "Up" : "Truncate";
-  std::cout << "Norm: E_norm=" << e_norm << " Fraction=" << fraction
-    << " G=" << g << " R=" << r << " S=" << s << " Action=" << action << std::endl;
+  string action = (inexact && sign == '0')? "Up" : "Truncate";
+  printf("Norm: E_norm=%d Fraction=%s G=%c R=%c S=&c Action=%s\n", e_norm, fraction, g, r, s, action);
 
   if (action == "Up") {
     if (fraction == "1111111111") {
@@ -236,8 +261,8 @@ int main(void) {
     }
   }
 
-  std::string bin_result = (sign == '1') ? "1" : "0";
-  std::string e_bin = "";
+  string bin_result = (sign == '1') ? "1" : "0";
+  string e_bin = "";
   for(int i = 0; i < 5; i++) {
     int v = e_exact + 14;
     if(v >= (1 << (4 - i))) {
@@ -250,12 +275,12 @@ int main(void) {
   bin_result += e_bin;
   bin_result += fraction;
 
-  std::string hex_result = "";
+  string hex_result = "";
   for (size_t i = 0; i < bin_result.length(); i += 4) {
-    std::string group = bin_result.substr(i, 4);
-    hex_result += binToHex[group];
+    string group = bin_result.substr(i, 4);
+    hex_result += binToHex(group);
   }
-  std::cout << "Result: " << hex_result << std::endl;
+  printf("Result: %s\n", hex_result);
 
   return 0;
 }
